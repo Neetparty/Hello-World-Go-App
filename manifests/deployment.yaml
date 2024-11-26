@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-go-app
+  namespace: hello-go-app
+  annotations:
+    sidecar.istio.io/inject: "true" 
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-go-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: hello-go-app
+    spec:
+      containers:
+      - name: hello-go-app
+        image: your-registry/hello-go-app
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10

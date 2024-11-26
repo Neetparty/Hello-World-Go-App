@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-go-app
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hello-go-app
+  source:
+    repoURL: git@github.com:Neetparty/Hello-World-Go-App.git
+    path: manifests/
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+  - group: 1  ""
+    kind: Service
+    jsonPointers:
+    - /spec/clusterIP
